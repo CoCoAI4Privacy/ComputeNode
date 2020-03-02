@@ -1,6 +1,11 @@
-from task_handler import TaskHandler
+import logging
+
 import connection_handler
+from task_handler import TaskHandler
 from singleton import Singleton
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class RequestProcessor(TaskHandler, metaclass=Singleton):
@@ -15,14 +20,15 @@ class RequestProcessor(TaskHandler, metaclass=Singleton):
         }
 
     def request_processor(self, args: list):
+        if len(args) < 1:
+            return
+
         args = args[0]
-        print("Received command:", args)
+        logger.info("Received command: " + str(args))
 
         self.handle_cmd[args[0]](args[1:])
 
     def task_exit(self, remainder: list):
-        print("Exit task")
-        self.connection.exit()
         self.exit()
 
     def task_process(self, remainder: list):
@@ -36,12 +42,12 @@ class RequestProcessor(TaskHandler, metaclass=Singleton):
     def _check_args(self, remainder: list, minimum=0, maximum=0):
         length = len(remainder)
         if length < minimum:
-            print("Received too few arguments! Expected " +
-                  str(minimum) + " or more, received:", length)
+            logger.info("Received too few arguments! Expected " +
+                        str(minimum) + " or more, received:", length)
             return False
         elif length > maximum:
-            print("Received too many arguments! Expected " +
-                  str(minimum) + " or less, received:", length)
+            logger.info("Received too many arguments! Expected " +
+                        str(minimum) + " or less, received:", length)
             return False
 
         return True

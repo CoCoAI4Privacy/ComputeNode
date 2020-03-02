@@ -1,3 +1,9 @@
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
 class LoopModule:
     def __init__(self):
         self.status = ""
@@ -10,11 +16,10 @@ class LoopModule:
     def start_loop(self):
         try:
             while not self.exit_loop:
-                    self.loop_body()
-        except Exception as e:
-            print(e)
+                self.loop_body()
+        except Exception:
+            logger.exception("Exception thrown in loop body")
             self.exit()
-
 
     def exit(self):
         self.on_exit()

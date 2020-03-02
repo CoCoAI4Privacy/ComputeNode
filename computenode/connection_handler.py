@@ -4,6 +4,9 @@ import logging
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from singleton import Singleton
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 class ConnectionHandler(metaclass=Singleton):
     def __init__(self, request_processor):
@@ -16,7 +19,7 @@ class ConnectionHandler(metaclass=Singleton):
             .with_url(self.server_url, options={
                 "verify_ssl": False
             })\
-            .configure_logging(logging.DEBUG)\
+            .configure_logging(logging.INFO)\
             .with_automatic_reconnect({
                 "type": "raw",
                 "keep_alive_interval": 15,
@@ -25,15 +28,23 @@ class ConnectionHandler(metaclass=Singleton):
             }).build()
 
     def start(self):
-        self.connection.on_open(lambda: print("Connected!"))
-        self.connection.on_close(lambda: print("Disconnected!"))
+        self.connection.on_open(lambda: logger.info("Connected!"))
+        self.connection.on_close(self.handleConnectionLoss)
         self.connection.on("ReceiveMessage", print)
         self.connection.on(
             "SimpleCommand", self.request_processor.add_task)
 
-        print("SignalR connecting to:", self.server_url)
-        self.connection.start()
+        logger.info("SignalR connecting to: " + self.server_url)
+        try:
+            self.connection.start()
+        except Exception:
+            logger.exception("Failed to start connection")
+            self.request_processor.exit()
+
+    def handleConnectionLoss(self):
+        logger.info("Disconnected!")
+        self.request_processor.exit()
 
     def exit(self):
         self.connection.stop()
-        print("Connection stopped")
+        logger.info("Connection stopped")
