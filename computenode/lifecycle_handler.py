@@ -1,6 +1,5 @@
 import threading
 import connection_handler
-import data_pipeline
 import request_processor
 import task_handler
 
@@ -18,9 +17,6 @@ class Lifecycle:
             print("Initializing ConnectionHandler")
             self.connection = connection_handler.ConnectionHandler(
                 self.requests)
-        if "pipeline" in argv or "all" in argv:
-            print("Initializing DataPipeline")
-            self.pipeline = data_pipeline.DataPipeline()
 
         # Setup callbacks
         if "connection" in argv and "requests" in argv:
