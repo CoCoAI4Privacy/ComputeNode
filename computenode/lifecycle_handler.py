@@ -38,12 +38,14 @@ class Lifecycle:
         try:
             self.requests.task_exit([])
         except Exception:
-            logger.exception("Unable to shut down requests")
+            logger.warning("Unable to shut down requests")
 
         try:
             self.connection.exit()
         except Exception:
-            logger.exception("Unable to shut down connection")
+            logger.warning("Unable to shut down connection")
+
+        self.wait_for_exit()
 
     def wait_for_exit(self):
         # Join threads
