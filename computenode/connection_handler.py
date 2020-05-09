@@ -26,14 +26,17 @@ class ConnectionHandler(metaclass=Singleton):
                 "reconnect_interval": 5,
                 "max_attempts": 5
             }).build()
+        self.set_up_callbacks()
 
-    def start(self):
+    def set_up_callbacks(self):
+        logger.debug("Setting up callbacks")
         self.connection.on_open(lambda: logger.info("Connected!"))
         self.connection.on_close(self.handleConnectionLoss)
         self.connection.on("ReceiveMessage", print)
         self.connection.on(
             "SimpleCommand", self.request_processor.add_task)
 
+    def start(self):
         logger.info("SignalR connecting to: " + self.server_url)
         try:
             self.connection.start()
