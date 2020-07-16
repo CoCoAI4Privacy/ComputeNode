@@ -22,7 +22,7 @@ class ConnectionHandler(metaclass=Singleton):
             .configure_logging(logging.INFO)\
             .with_automatic_reconnect({
                 "type": "raw",
-                "keep_alive_interval": 15,
+                "keep_alive_interval": 10,
                 "reconnect_interval": 5,
                 "max_attempts": 5
             }).build()
